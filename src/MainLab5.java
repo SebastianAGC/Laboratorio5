@@ -17,6 +17,7 @@ public class MainLab5{
         Scanner scanner = new Scanner(System.in);
         Operaciones operacion = new Operaciones();
         RegExConverter sC = new RegExConverter();
+        CocolStructure structure = new CocolStructure();
         String regexp;
         String regexpPF;
         String cadenaExtendida;
@@ -36,12 +37,100 @@ public class MainLab5{
         cadenaExtendida="("+regexp+")#";
         regexPFestendida=sC.infixToPostfix(cadenaExtendida);
 
+/* ***********************************Construccion del automata de ident*************************************************/
+
+        //Creando la cadena que se ingresara para crear el automata de ident
+        String cadena = structure.getLetter()+"("+structure.getLetter()+"|"+structure.getDigit()+")*";
+        System.out.println(cadena);
+
+        //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
+        cadenaExtendida="("+cadena+")#";
+        regexPFestendida=sC.infixToPostfix(cadenaExtendida);
+
+        //Obteniedno la hoja final del arbol sintactico
+        Hoja n = operacion.generarArbolSintactico(regexPFestendida);
+
+        //Creando el automata
+        AutomataDFA ident = new AutomataDFA();
+        ArrayList<String> alfabetoIdent = operacion.generateAlphabet(cadena);
+        operacion.construccionDirecta(ident, n, alfabetoIdent);
+        operacion.nombrarNodos(ident);
+
+        //String c = operacion.descripcionAFDdirecto(cd, alfabeto);
+
+/* ***********************************Construccion del automata de Digit************************************************/
+
+        //Creando la cadena que se ingresara para crear el automata de ident
+        cadena = structure.getDigit()+"("+structure.getDigit()+")*";
+        System.out.println(cadena);
+
+        //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
+        cadenaExtendida="("+cadena+")#";
+        regexPFestendida=sC.infixToPostfix(cadenaExtendida);
+
+        //Obteniedno la hoja final del arbol sintactico
+        n = operacion.generarArbolSintactico(regexPFestendida);
+
+        //Creando el automata
+        AutomataDFA digit = new AutomataDFA();
+        //Obteniendo el alfabeto de la cadena
+        ArrayList<String> alfabetoDigit = operacion.generateAlphabet(cadena);
+        operacion.construccionDirecta(digit, n, alfabetoDigit);
+        operacion.nombrarNodos(digit);
+
+        //String c = operacion.descripcionAFDdirecto(cd, alfabeto);
+
+/* ****************************************Construccion del automata de String********************************************/
+
+        //Creando la cadena que se ingresara para crear el automata de ident
+        cadena = "\""+structure.getAnyButQuote()+"\"";
+        System.out.println(cadena);
+
+        //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
+        cadenaExtendida="("+cadena+")#";
+        regexPFestendida=sC.infixToPostfix(cadenaExtendida);
+
+        //Obteniedno la hoja final del arbol sintactico
+        n = operacion.generarArbolSintactico(regexPFestendida);
+
+        //Creando el automata
+        AutomataDFA string = new AutomataDFA();
+        //Obteniendo el alfabeto de la cadena
+        ArrayList<String> alfabetoString = operacion.generateAlphabet(cadena);
+        operacion.construccionDirecta(string, n, alfabetoString);
+        operacion.nombrarNodos(string);
+
+        //String c = operacion.descripcionAFDdirecto(cd, alfabeto);
+
+
+/* ****************************************Construccion del automata de char************************************/
+
+        //Creando la cadena que se ingresara para crear el automata de ident
+        cadena = "\\"+structure.getAnyButApostrophe()+"\\";
+        System.out.println(cadena);
+
+        //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
+        cadenaExtendida="("+cadena+")#";
+        regexPFestendida=sC.infixToPostfix(cadenaExtendida);
+
+        //Obteniedno la hoja final del arbol sintactico
+        n = operacion.generarArbolSintactico(regexPFestendida);
+
+        //Creando el automata
+        AutomataDFA charr = new AutomataDFA();
+        //Obteniendo el alfabeto de la cadena
+        ArrayList<String> alfabetoCharr = operacion.generateAlphabet(cadena);
+        operacion.construccionDirecta(charr, n, alfabetoCharr);
+        operacion.nombrarNodos(charr);
+
+        //String c = operacion.descripcionAFDdirecto(cd, alfabeto);
+
 /* ****************************************Construccion directa del AFD**************************************/
 
         long time_sta, time_e;
         time_sta = System.nanoTime();
         //Obteniendo la hoja final del arbol sintactico
-        Hoja n = operacion.generarArbolSintactico(regexPFestendida);
+        n = operacion.generarArbolSintactico(regexPFestendida);
 
         AutomataDFA cd = new AutomataDFA();
         ArrayList<String> alfabetoDirecto = operacion.generateAlphabet(regexpPF);
