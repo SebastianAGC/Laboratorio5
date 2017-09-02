@@ -18,7 +18,16 @@ import java.util.Stack;
 public class Operaciones {
     
     public static ArrayList<Nodo> miArrayNodos = new ArrayList<>();
-    
+    private ArrayList<String> alfabeto = new ArrayList<>();
+
+    public ArrayList<String> getAlfabeto() {
+        return alfabeto;
+    }
+
+    public void setAlfabeto(ArrayList<String> alfabeto) {
+        this.alfabeto = alfabeto;
+    }
+
     public Automata concatenacion(Automata automataA, Automata automataB){
 
         //asignando los nodos del inicial de b al final de a
@@ -183,6 +192,94 @@ public class Operaciones {
     }
 
 
+    public Automata crearAFN(String regexpPF, Stack<Automata> miStack){
+
+
+        for (int x=0;x<regexpPF.length();x++){
+            String caracter = String.valueOf(regexpPF.charAt(x));
+            if(caracter.equals("*") || caracter.equals("|") || caracter.equals("?") || caracter.equals(".") || caracter.equals("+")){
+                if(caracter.equals(".")){
+                    //Hacer aqui la concatenacion
+                    if(miStack.size()>=2){
+                        Automata automataB=miStack.pop();
+                        Automata automataA=miStack.pop();
+                        Automata automataAB = concatenacion(automataA, automataB);
+                        miStack.push(automataAB);
+                    }else{
+                        System.out.println("La cadena ingresada no es una regex.");
+                        System.exit(0);
+                    }
+                }
+                if(caracter.equals("|")){
+                    //OR
+                    if(miStack.size()>=2){
+                        Automata automataB=miStack.pop();
+                        Automata automataA=miStack.pop();
+                        Automata automataAorB=or(automataA, automataB);
+                        miStack.push(automataAorB);
+                    }else{
+                        System.out.println("La cadena ingresada no es una regex.");
+                        System.exit(0);
+                    }
+                }
+                if(caracter.equals("*")){
+                    //Kleene
+                    if(miStack.size()>=1) {
+                        Automata automataA = miStack.pop();
+                        Automata automataK = kleene(automataA);
+                        miStack.push(automataK);
+                    }else{
+                        System.out.println("La cadena ingresada no es una regex.");
+                        System.exit(0);
+                    }
+                }
+                if(caracter.equals("?")){
+                    //Abreviatura ?
+                    if(miStack.size()>=1) {
+                        Automata X = miStack.pop();
+                        Automata e = new Automata("$");
+                        Automata automataOrEpsilon = or(X, e);
+                        miStack.push(automataOrEpsilon);
+                    }else{
+                        System.out.println("La cadena ingresada no es una regex.");
+                        System.exit(0);
+                    }
+
+                }
+                if(caracter.equals("+")){
+                    //Cerradura Positiva
+                    if(miStack.size()>=1) {
+                        Automata a = miStack.pop();
+                        Automata automataCerradura = kleenemas(a);
+                        miStack.push(automataCerradura);
+                    }else{
+                        System.out.println("La cadena ingresada no es una regex.");
+                        System.exit(0);
+                    }
+                }
+            }else{
+                //Ciclo if que verifica si el ArrayList del alfabeto ya contiene el caractér
+                if(!alfabeto.contains(caracter) && !caracter.equals("$") && !caracter.equals("")){
+                    alfabeto.add(caracter);
+                }
+                //Creando el automata básico
+                Automata elAutomata = new Automata(caracter);
+                miStack.push(elAutomata);
+            }
+        }
+
+        Automata elAutomatota = miStack.pop();
+
+        //Creando un ArrayList que contiene todos
+        getArrayNodos(elAutomatota.getNodoInicial());
+
+        //Nombrando a los nodos
+        nombrarNodos();
+        elAutomatota.getNodoFinal().setEsFinal(true);
+
+
+        return elAutomatota;
+    }
     /* *************************************OPERACIONES PARA AFD******************************************/
 
     public Set<Nodo> eClosure(Set<Nodo> T){
@@ -371,7 +468,7 @@ public class Operaciones {
         Stack<Hoja> arbolSintactico = new Stack<>();
         for(int x = 0;x<regexExtendidaPF.length(); x++){
             String caracter = String.valueOf(regexExtendidaPF.charAt(x));
-            if(caracter.equals("|")){
+            if(caracter.equals("|") || caracter.equals(".")){
                 Hoja hojaDerecha = arbolSintactico.pop();
                 Hoja hojaIzquierda = arbolSintactico.pop();
                 Hoja hojaOr = new Hoja(hojaIzquierda, hojaDerecha, caracter);
@@ -381,22 +478,8 @@ public class Operaciones {
                 hojaOr.setFirstpos(firstposComplejo(hojaOr));
                 hojaOr.setLastpos(lastposComplejo(hojaOr));
                 followpos(hojaOr);
-                positionsCompuesto(hojaOr);
-
                 arbolSintactico.push(hojaOr);
-            }else if(caracter.equals(".")){
-                Hoja hojaDerecha = arbolSintactico.pop();
-                Hoja hojaIzquierda = arbolSintactico.pop();
-                Hoja hojaCon = new Hoja(hojaIzquierda, hojaDerecha, caracter);
 
-                //Calculando las operaciones nullable, fistpos, lastpos y followpos de la hoja creada
-                hojaCon.setNullable(nullableComplejo(hojaCon));
-                hojaCon.setFirstpos(firstposComplejo(hojaCon));
-                hojaCon.setLastpos(lastposComplejo(hojaCon));
-                followpos(hojaCon);
-                positionsCompuesto(hojaCon);
-
-                arbolSintactico.push(hojaCon);
             }else if(caracter.equals("*")){
                 Hoja hojaUnica = arbolSintactico.pop();
                 Hoja hojaKleene = new Hoja(hojaUnica, caracter);
@@ -406,7 +489,7 @@ public class Operaciones {
                 hojaKleene.setFirstpos(firstposComplejo(hojaKleene));
                 hojaKleene.setLastpos(lastposComplejo(hojaKleene));
                 followpos(hojaKleene);
-                positionsCompuesto(hojaKleene);
+
 
                 arbolSintactico.push(hojaKleene);
             }else{
@@ -420,7 +503,6 @@ public class Operaciones {
                 //Obteniendo el last pos de la hoja basica
                 hojaBasica.setLastpos(lastposBasico(hojaBasica));
 
-                positionBasico(hojaBasica);
                 //Pusheando la hoja basica al stack del arbol
                 arbolSintactico.push(hojaBasica);
                 cont++;
@@ -561,26 +643,6 @@ public class Operaciones {
         }
     }
 
-    public void positionBasico(Hoja hojaBasica){
-        Set<Hoja> a = new HashSet<>();
-        a.add(hojaBasica);
-        hojaBasica.setPositions(a);
-    }
-    public void positionsCompuesto(Hoja hojaCompuesta){
-        String s = hojaCompuesta.getSimbolo();
-        Hoja c1 = hojaCompuesta.getHijoIzquierdo();
-        Hoja c2 = hojaCompuesta.getHijoDerecho();
-        Hoja c = hojaCompuesta.getHojaUnica();
-
-        if(s.equals(".") || s.equals("|")){
-            hojaCompuesta.getPositions().addAll(c1.getPositions());
-            hojaCompuesta.getPositions().addAll(c2.getPositions());
-        }else if(s.equals("*")){
-            hojaCompuesta.getPositions().addAll(c.getPositions());
-        }
-    }
-
-
     public void construccionDirecta(AutomataDFA automata,Hoja n, ArrayList<String> alfabeto){
 
         //Creando una nueva instancia del objeto EstadoAFDHoja  que contiene como atributo el firstpos de la hoja n.
@@ -717,175 +779,18 @@ public class Operaciones {
         }else{
             System.out.println("La cadena NO es aceptada.");
         }
-
     }
 
-/* ***************************************MINIMIZACION DE AFD*************************************************************/
+    public ArrayList<String> generateAlphabet(String cadena) {
 
-    public void minimizar(AutomataDFA automata, ArrayList<String> alfabeto) {
-        ArrayList<EstadoAFD> estados = automata.getDstatesAFD();
-        ArrayList<AFDminimizado> R = new ArrayList<>();
-
-        //Generando la tabla de parejas de estados
-        for (int i = 0; i < estados.size(); i++) {
-            for (int j = 0; j < estados.size(); j++) {
-                AFDminimizado am = new AFDminimizado(estados.get(i), estados.get(j), false);
-                R.add(am);
-
+        ArrayList<String> alfabeto = new ArrayList<>();
+        for (int i = 0; i < cadena.length(); i++) {
+            String caracter = String.valueOf(cadena.charAt(i));
+            if (!caracter.equals("*") || !caracter.equals("|")
+                    || !caracter.equals("?") || !caracter.equals(".") || !caracter.equals("+") || !caracter.equals("$")) {
+                alfabeto.add(caracter);
             }
         }
-
-        //Marcando las parejas de estados si alguno de los dos es estado final
-        for (AFDminimizado a : R) {
-            if (a.getP().isFinal() && a.getQ().isFinal()) {
-
-            } else if (a.getP().isFinal() || a.getQ().isFinal()) {
-                a.setMarcado(true);
-            }
-
-        }
-
-        //loop(R, alfabeto, automata);
-        int cont = 0;
-        while (cont < 100000) {
-            for (AFDminimizado a : R) {
-                if (!a.isMarcado()) {
-                    for (String c : alfabeto) {
-                        EstadoAFD moveP = moveSimulacion(a.getP(), c, automata);
-                        EstadoAFD moveQ = moveSimulacion(a.getQ(), c, automata);
-                        for (AFDminimizado afdm : R) {
-                            if (afdm.getP().equals(moveP) && afdm.getQ().equals(moveQ)) {
-                                if (afdm.isMarcado()) {
-                                    a.setMarcado(true);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            cont++;
-        }
-
-        Set<AFDminimizado> F = new HashSet<>();
-        for (AFDminimizado a : R) {
-            if (!a.isMarcado()) {
-                F.add(a);
-            }
-        }
-
-        for (AFDminimizado a: F) {
-            a.getSet().add(a.getP());
-            a.getSet().add(a.getQ());
-
-        }
-
-        Set<AFDminimizado> estadosRepetidos = new HashSet<>();
-        Set<AFDminimizado> repetido =  new HashSet<>();
-        repetido.addAll(F);
-
-
-        for (AFDminimizado a: F) {
-            repetido.removeAll(estadosRepetidos);
-            for (AFDminimizado b: repetido) {
-                if(b.equals(a)){
-                    //hacernada
-                }else{
-                    for (EstadoAFD s: b.getSet()) {
-                        if(a.getSet().contains(s)){
-                            a.getSet().addAll(b.getSet());
-                            estadosRepetidos.add(b);
-                        }
-                    }
-                }
-            }
-            repetido.remove(a);
-        }
-
-        F.removeAll(estadosRepetidos);
-        System.out.println(F.size());
-        ArrayList<AFDminimizado> setFinal = new ArrayList<>();
-        setFinal.addAll(F);
-
-
-        //Nombrando cada uno de los estados
-        for(int i=0;i<setFinal.size();i++){
-            setFinal.get(i).setNumeroEstadoMin(i);
-        }
-
-        for (AFDminimizado afd: setFinal) {
-            for (String a:alfabeto) {
-                moveMin(afd,a,automata);
-                for (AFDminimizado destino:setFinal) {
-                    if(destino.getSet().equals(moveMin(afd,a,automata))){
-                        DtranAFDMin d = new DtranAFDMin(afd,a, destino);
-                        afd.getTransiciones().add(d);
-                    }
-                }
-            }
-        }
-
-
-        String descripcionMinimizada = "Estados: ";
-        for (AFDminimizado a: setFinal) {
-            descripcionMinimizada+=a.getNumeroEstadoMin()+", ";
-        }
-        descripcionMinimizada+="\nTransiciones: ";
-        for (AFDminimizado a: setFinal) {
-            ArrayList<DtranAFDMin> transicionesDelEstadoMin = a.getTransiciones();
-            for (DtranAFDMin d: transicionesDelEstadoMin) {
-                descripcionMinimizada+="("+d.getOrigen().getNumeroEstadoMin()+"-"+d.getTransicion()+"-"+d.getDestino().getNumeroEstadoMin()+"), ";
-            }
-
-        }
-
-        BufferedWriter bw2 = null;
-        FileWriter fw2 = null;
-
-
-        try {
-
-            PrintWriter writer = new PrintWriter("Descripcion AFD Minimizado.txt");
-            writer.println("\nAFN Minimizado: \n"+descripcionMinimizada);
-            writer.close();
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        }
-
-
-
-
+        return alfabeto;
     }
-
-    public void loop(ArrayList<AFDminimizado> R, ArrayList<String> alfabeto, AutomataDFA automata){
-        for (AFDminimizado a: R) {
-            if(!a.isMarcado()){
-                for (String c: alfabeto) {
-                    EstadoAFD moveP = moveSimulacion(a.getP(), c, automata);
-                    EstadoAFD moveQ = moveSimulacion(a.getQ(), c, automata);
-                    for (AFDminimizado afdm:R) {
-                        if(afdm.getP().equals(moveP) && afdm.getQ().equals(moveQ)){
-                            if(afdm.isMarcado()){
-                                a.setMarcado(true);
-                                loop(R,alfabeto,automata);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public Set<EstadoAFD> moveMin(AFDminimizado estado, String a, AutomataDFA automata){
-        Set<EstadoAFD> nodosDestino = new HashSet<>();
-        for (EstadoAFD e: estado.getSet()) {
-            EstadoAFD destino = moveSimulacion(e, a, automata);
-            nodosDestino.add(destino);
-        }
-        return nodosDestino;
-    }
-
-
 }
