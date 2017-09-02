@@ -1,7 +1,5 @@
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -753,7 +751,7 @@ public class Operaciones {
         return moveTA;
     }
 
-    public void simulacionAFDdirecto(AutomataDFA automata, String cadena){
+    public boolean simulacionAFDdirecto(AutomataDFA automata, String cadena){
         EstadoAFDHoja e = automata.getEstadoInicialHoja();
         String c;
         int x = 0, y=0;
@@ -776,8 +774,10 @@ public class Operaciones {
         }
         if(y==1){
             System.out.println("La cadena SI es aceptada.");
+            return true;
         }else{
             System.out.println("La cadena NO es aceptada.");
+            return false;
         }
     }
 
@@ -792,5 +792,125 @@ public class Operaciones {
             }
         }
         return alfabeto;
+    }
+
+    public String fileReader(String path){
+        String text="";
+        try {
+            BufferedReader bf = new BufferedReader(new FileReader(path));
+            String temp="";
+            String bfRead;
+            while((bfRead = bf.readLine())!= null){
+                temp += bfRead;
+            }
+            text=temp;
+        }catch (Exception ex){
+            System.err.println("No se encontró ningun archivo :v");
+        }
+
+        return text;
+    }
+
+    public int recorrido(String fileContent, AutomataDFA ident, AutomataDFA number, AutomataDFA string, AutomataDFA charr){
+        String compilerIdent="";
+        int result = 0;
+        int y=8, z=1000000000,a=1000000000,b=1000000000,c=1000000000,d=1000000000,e=1000000000,f=1000000000;
+        String com = "";
+        String cadenaGeneral="";
+        String verificador="";
+        String contCharacters="";
+        for(int x = 0 ; x<fileContent.length();x++){
+            String caracter = String.valueOf(fileContent.charAt(x));
+            if(x<y){
+                com+=caracter;
+            }else if(x==y){
+                if(!startsCompiler(com)){
+                    result=1;
+                    return result;
+                }else{
+                    y=y+1;
+                    cadenaGeneral="";
+                }
+            }else if(x>=y){
+                if(x<z){
+                    if(!caracter.equals("(")){
+                        cadenaGeneral+=caracter;
+                    }else{
+                        z=x;
+                        if(!simulacionAFDdirecto(ident, cadenaGeneral)){
+                            result=2;
+                            return result;
+                        }else{
+                            compilerIdent=cadenaGeneral;
+                            cadenaGeneral="";
+                        }
+                    }
+                }
+            }else if(x>=z){
+                if(!caracter.equals(")")){
+                    cadenaGeneral+=caracter;
+                }else{
+                    a=x;
+                    cadenaGeneral="";
+                }
+            }else if(x>a){
+                if(x<b){
+                    if(!caracter.equals("S")){
+                        cadenaGeneral+=caracter;
+                    }else{
+                        cadenaGeneral+=caracter;
+                        if(!cadenaGeneral.equals("CHARACTERS")){
+                            result=3;
+                            return result;
+                        }else{
+                            b=x;
+                            cadenaGeneral="";
+                        }
+                    }
+                }else if(x>b){
+                    cadenaGeneral+=caracter;
+                    if(cadenaGeneral.length()>8){
+                        int n=cadenaGeneral.length()-8;
+                        for(int i = n;i<n+8;i++){
+                            verificador+=String.valueOf(cadenaGeneral.charAt(i));
+                        }
+                        if(verificador.equals("KEYWORDS")){
+                            for(int contador=0;contador<n;contador++){
+                                contCharacters+=String.valueOf(cadenaGeneral.charAt(contador));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public boolean startsCompiler(String com){
+
+            if(com.equals("COMPILER")){
+                return true;
+            }else{
+                return false;
+            }
+
+    }
+
+    public void Errors(int numberOfError){
+        System.out.println("Entré a los errores.");
+        switch (numberOfError){
+            case 1:
+                System.err.println("Error de Sintaxis #1: No se encuentra la palabra inicial COMPILER");
+                break;
+            case 2:
+                System.err.println("Error de Sintaxis #2: Identificador no valido para compiler");
+                break;
+            case 3:
+                System.err.println("Error de Sintaxis #2: No se encuentra el segmento CHARACTERS");
+                break;
+            default:
+                System.out.println("No se encontraron errores. CORRECTO");
+                break;
+        }
     }
 }
