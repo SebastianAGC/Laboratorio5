@@ -41,7 +41,6 @@ public class MainLab5{
 
         //Creando la cadena que se ingresara para crear el automata de ident
         String cadena = structure.getLetter()+"("+structure.getLetter()+"|"+structure.getDigit()+")*";
-        System.out.println(cadena);
 
         //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
         cadenaExtendida="("+cadena+")#";
@@ -55,15 +54,13 @@ public class MainLab5{
         ArrayList<String> alfabetoIdent = operacion.generateAlphabet(cadena);
         operacion.construccionDirecta(ident, n, alfabetoIdent);
         operacion.nombrarNodos(ident);
-        System.out.println("Ya cree el automata de ident");
 
         //String c = operacion.descripcionAFDdirecto(cd, alfabeto);
 
 /* ***********************************Construccion del automata de number***********************************************/
 
-        //Creando la cadena que se ingresara para crear el automata de ident
+        //Creando la cadena que se ingresara para crear el automata de number
         cadena = structure.getDigit()+"("+structure.getDigit()+")*";
-        System.out.println(cadena);
 
         //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
         cadenaExtendida="("+cadena+")#";
@@ -78,7 +75,6 @@ public class MainLab5{
         ArrayList<String> alfabetoNumber = operacion.generateAlphabet(cadena);
         operacion.construccionDirecta(number, n, alfabetoNumber);
         operacion.nombrarNodos(number);
-        System.out.println("Ya cree el automata de number");
 
         //String c = operacion.descripcionAFDdirecto(cd, alfabeto);
 
@@ -86,7 +82,6 @@ public class MainLab5{
 
         //Creando la cadena que se ingresara para crear el automata de ident
         cadena = "\""+structure.getAnyButQuote()+"\"";
-        System.out.println(cadena);
 
         //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
         cadenaExtendida="("+cadena+")#";
@@ -101,7 +96,6 @@ public class MainLab5{
         ArrayList<String> alfabetoString = operacion.generateAlphabet(cadena);
         operacion.construccionDirecta(string, n, alfabetoString);
         operacion.nombrarNodos(string);
-        System.out.println("Ya cree el automata de String");
 
         //String c = operacion.descripcionAFDdirecto(cd, alfabeto);
 
@@ -110,7 +104,6 @@ public class MainLab5{
 
         //Creando la cadena que se ingresara para crear el automata de ident
         cadena = "\\"+structure.getAnyButApostrophe()+"\\";
-        System.out.println(cadena);
 
         //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
         cadenaExtendida="("+cadena+")#";
@@ -125,15 +118,14 @@ public class MainLab5{
         ArrayList<String> alfabetoCharr = operacion.generateAlphabet(cadena);
         operacion.construccionDirecta(charr, n, alfabetoCharr);
         operacion.nombrarNodos(charr);
-        System.out.println("Ya cree el automata de Char");
 
         //String c = operacion.descripcionAFDdirecto(cd, alfabeto);
 
 /* ******************************************LEYENDO EL ARCHIVO TXT*****************************************************/
 
         String path = System.getProperty("user.dir") + "\\cocol.txt";
-        String fileContent = operacion.fileReader(path);
-        System.out.println("Yo soy el contenido del archivo de texto: \n"+fileContent);
+        ArrayList<String> fileContent = operacion.fileReader(path);
+        //System.out.println("Yo soy el contenido del archivo de texto: \n"+fileContent);
 
 /* ******************************************RECORRIENDO EL ARCHIVO*****************************************************/
 
@@ -161,7 +153,7 @@ public class MainLab5{
 
 
 /* ******************************************GENERACION DE ARCHIVOS*****************************************************/
-
+/*
         BufferedWriter bw = null;
         FileWriter fw = null;
 
@@ -175,7 +167,7 @@ public class MainLab5{
 
             e.printStackTrace();
 
-        }
+        }*/
 
         System.out.println("\nIngrese la cadena que desea simular en el AFD directo: ");
         cadenaSimulacion=scanner.nextLine();

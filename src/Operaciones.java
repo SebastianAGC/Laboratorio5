@@ -773,10 +773,10 @@ public class Operaciones {
 
         }
         if(y==1){
-            System.out.println("La cadena SI es aceptada.");
+            System.out.println("La cadena si es aceptada.");
             return true;
         }else{
-            System.out.println("La cadena NO es aceptada.");
+            System.out.println("La cadena no es aceptada.");
             return false;
         }
     }
@@ -793,32 +793,81 @@ public class Operaciones {
         }
         return alfabeto;
     }
-
-    public String fileReader(String path){
-        String text="";
+/* ***********************************************************************************************************/
+    public ArrayList<String> fileReader(String path){
+        ArrayList<String> text = new ArrayList<>();
         try {
             BufferedReader bf = new BufferedReader(new FileReader(path));
             String temp="";
             String bfRead;
             while((bfRead = bf.readLine())!= null){
-                temp += bfRead;
+                text.add(bfRead);
             }
-            text=temp;
         }catch (Exception ex){
             System.err.println("No se encontró ningun archivo :v");
         }
-
         return text;
     }
 
-    public int recorrido(String fileContent, AutomataDFA ident, AutomataDFA number, AutomataDFA string, AutomataDFA charr){
+    public int recorrido(ArrayList<String> fileContent, AutomataDFA ident, AutomataDFA number, AutomataDFA string, AutomataDFA charr){
         String compilerIdent="";
+        String endCompilerIdent="";
         int result = 0;
         int y=8, z=1000000000,a=1000000000,b=1000000000,c=1000000000,d=1000000000,e=1000000000,f=1000000000;
         String com = "";
+        String end = "";
         String cadenaGeneral="";
         String verificador="";
         String contCharacters="";
+
+        fileContent.size();
+        String start = fileContent.get(0);
+        System.out.println(start);
+        String finale = fileContent.get(fileContent.size()-1);
+
+        //Comprobando que tenga el inicio correcto*/
+        for(int i = 0; i<start.length();i++){
+            String caracter = String.valueOf(start.charAt(i));
+            if(i<=8){
+                com+=caracter;
+            }
+            if(i==9){
+                if(!com.equals("COMPILER ")){
+                    result=1;
+                    return result;
+                }
+            }
+            if(i>=9){
+                compilerIdent+=caracter;
+            }
+
+        }
+        if(simulacionAFDdirecto(ident, compilerIdent)){
+            result=2;
+            return result;
+        }
+
+        //Comprobando que tenga el final correcto
+        for (int i = 0;i<finale.length();i++){
+            String caracter = String.valueOf(finale.charAt(i));
+            if(i<=4){
+                end+=caracter;
+            }
+            if(i==5){
+                if(end.equals("END ")){
+                   result=3;
+                   return result;
+                }
+            }
+            if(i>=5){
+                endCompilerIdent+=caracter;
+            }
+        }
+        if(!endCompilerIdent.equals(compilerIdent+".")){
+            result=4;
+            return result;
+        }
+        /*
         for(int x = 0 ; x<fileContent.length();x++){
             String caracter = String.valueOf(fileContent.charAt(x));
             if(x<y){
@@ -882,22 +931,11 @@ public class Operaciones {
                     }
                 }
             }
-        }
+        }*/
         return result;
     }
 
-    public boolean startsCompiler(String com){
-
-            if(com.equals("COMPILER")){
-                return true;
-            }else{
-                return false;
-            }
-
-    }
-
     public void Errors(int numberOfError){
-        System.out.println("Entré a los errores.");
         switch (numberOfError){
             case 1:
                 System.err.println("Error de Sintaxis #1: No se encuentra la palabra inicial COMPILER");
@@ -906,7 +944,10 @@ public class Operaciones {
                 System.err.println("Error de Sintaxis #2: Identificador no valido para compiler");
                 break;
             case 3:
-                System.err.println("Error de Sintaxis #2: No se encuentra el segmento CHARACTERS");
+                System.err.println("Error de Sintaxis #3: No se encuentra la palabra de cierre END");
+                break;
+            case 4:
+                System.err.println("Error de Sintaxis #4: No se encuentra el identificar final");
                 break;
             default:
                 System.out.println("No se encontraron errores. CORRECTO");
