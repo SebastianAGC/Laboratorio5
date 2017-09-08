@@ -752,6 +752,7 @@ public class Operaciones {
     }
 
     public boolean simulacionAFDdirecto(AutomataDFA automata, String cadena){
+        System.out.println(cadena);
         EstadoAFDHoja e = automata.getEstadoInicialHoja();
         String c;
         int x = 0, y=0;
@@ -786,14 +787,13 @@ public class Operaciones {
         ArrayList<String> alfabeto = new ArrayList<>();
         for (int i = 0; i < cadena.length(); i++) {
             String caracter = String.valueOf(cadena.charAt(i));
-            if (!caracter.equals("*") || !caracter.equals("|")
-                    || !caracter.equals("?") || !caracter.equals(".") || !caracter.equals("+") || !caracter.equals("$")) {
+            if (!alfabeto.contains(caracter) && !caracter.equals("*") && !caracter.equals("|") && !caracter.equals("?") && !caracter.equals(".") && !caracter.equals("+") && !caracter.equals("$")) {
                 alfabeto.add(caracter);
             }
         }
         return alfabeto;
     }
-/* ***********************************************************************************************************/
+/* ********************************************METODOS PARA VERIFICACION DE SINTAXIS*****************************************/
     public ArrayList<String> fileReader(String path){
         ArrayList<String> text = new ArrayList<>();
         try {
@@ -822,7 +822,6 @@ public class Operaciones {
 
         fileContent.size();
         String start = fileContent.get(0);
-        System.out.println(start);
         String finale = fileContent.get(fileContent.size()-1);
 
         //Comprobando que tenga el inicio correcto*/
@@ -842,7 +841,7 @@ public class Operaciones {
             }
 
         }
-        if(simulacionAFDdirecto(ident, compilerIdent)){
+        if(!simulacionAFDdirecto(ident, compilerIdent)){
             result=2;
             return result;
         }
