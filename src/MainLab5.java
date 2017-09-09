@@ -11,7 +11,8 @@ import java.io.*;
  *
  * @author Sebastian Galindo, Carnet: 15452
  */
-public class MainLab5{
+public class
+MainLab5{
 
     public static void main(String[] args) {
         Operaciones operacion = new Operaciones();
@@ -44,7 +45,7 @@ public class MainLab5{
 
 
 /* ***********************************Construccion del automata de number***********************************************/
-
+/*
         //Creando la cadena que se ingresara para crear el automata de number
         String cadena = structure.getDigit()+"("+structure.getDigit()+")*";
 
@@ -67,7 +68,7 @@ public class MainLab5{
 
 /* ****************************************Construccion del automata de String******************************************/
 
-        //Creando la cadena que se ingresara para crear el automata de ident
+   /*     //Creando la cadena que se ingresara para crear el automata de ident
         cadena = "\""+structure.getAnyButQuote()+"\"";
 
         //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
@@ -85,7 +86,7 @@ public class MainLab5{
         operacion.nombrarNodos(string);
 
 /* ****************************************Construccion del automata de char************************************/
-
+/*
         //Creando la cadena que se ingresara para crear el automata de ident
         cadena = "\\"+structure.getAnyButApostrophe()+"\\";
 
@@ -110,7 +111,8 @@ public class MainLab5{
 
 /* ******************************************RECORRIENDO EL ARCHIVO*****************************************************/
 
-        operacion.Errors(operacion.recorrido(fileContent, ident, number, string, charr));
+        operacion.Errors(operacion.recorrido(fileContent, ident));
+        //operacion.Errors(operacion.recorrido(fileContent, ident, number, string, charr));
 
 
     }

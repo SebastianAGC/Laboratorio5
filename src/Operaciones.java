@@ -809,7 +809,7 @@ public class Operaciones {
         return text;
     }
 
-    public int recorrido(ArrayList<String> fileContent, AutomataDFA ident, AutomataDFA number, AutomataDFA string, AutomataDFA charr){
+    public int recorrido(ArrayList<String> fileContent, AutomataDFA ident){
         String compilerIdent="";
         String endCompilerIdent="";
         int result = 0;
