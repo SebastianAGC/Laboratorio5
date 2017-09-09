@@ -26,8 +26,7 @@ MainLab5{
 /* ***********************************Construccion del automata de ident************************************************/
 
         //Creando la cadena que se ingresara para crear el automata de ident
-        regexp = "("+structure.getLetter()+")("+structure.getLetter()+"|"+structure.getDigit()+")*";
-        System.out.println(regexp);
+        regexp = structure.getIdent();
 
         //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
         regexpPF = sC.infixToPostfix(regexp);
@@ -42,37 +41,44 @@ MainLab5{
         ArrayList<String> alfabetoIdent = operacion.generateAlphabet(regexpPF);
         operacion.construccionDirecta(ident, n, alfabetoIdent);
         operacion.nombrarNodos(ident);
+        operacion.estadoFinal(ident);
 
 
-/* ***********************************Construccion del automata de number***********************************************/
-/*
+
+/* ***********************************Construccion del automata de Set***********************************************/
+
         //Creando la cadena que se ingresara para crear el automata de number
-        String cadena = structure.getDigit()+"("+structure.getDigit()+")*";
+        regexp = structure.getSet();
+        System.out.println(regexp);
 
 
         //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
-        cadenaExtendida="("+cadena+")#";
+        regexpPF = sC.infixToPostfix(regexp);
+        cadenaExtendida="("+regexp+")#";
         regexPFestendida=sC.infixToPostfix(cadenaExtendida);
 
         //Obteniedno la hoja final del arbol sintactico
         n = operacion.generarArbolSintactico(regexPFestendida);
 
         //Creando el automata
-        AutomataDFA number = new AutomataDFA();
-        //Obteniendo el alfabeto de la cadena
-        ArrayList<String> alfabetoNumber = operacion.generateAlphabet(cadena);
-        operacion.construccionDirecta(number, n, alfabetoNumber);
-        operacion.nombrarNodos(number);
+        AutomataDFA set = new AutomataDFA();
+        ArrayList<String> alfabetoSet = operacion.generateAlphabet(regexpPF);
+        operacion.construccionDirecta(set, n, alfabetoSet);
+        operacion.nombrarNodos(set);
+        operacion.estadoFinal(set);
 
         //String c = operacion.descripcionAFDdirecto(cd, alfabeto);
 
 /* ****************************************Construccion del automata de String******************************************/
 
-   /*     //Creando la cadena que se ingresara para crear el automata de ident
-        cadena = "\""+structure.getAnyButQuote()+"\"";
+        //Creando la cadena que se ingresara para crear el automata de number
+        regexp = structure.getString();
+        System.out.println(regexp);
+
 
         //Creando cadena Extendida para la generación directa de AFD's y convirtiendola a formato Postfix
-        cadenaExtendida="("+cadena+")#";
+        regexpPF = sC.infixToPostfix(regexp);
+        cadenaExtendida="("+regexp+")#";
         regexPFestendida=sC.infixToPostfix(cadenaExtendida);
 
         //Obteniedno la hoja final del arbol sintactico
@@ -80,10 +86,10 @@ MainLab5{
 
         //Creando el automata
         AutomataDFA string = new AutomataDFA();
-        //Obteniendo el alfabeto de la cadena
-        ArrayList<String> alfabetoString = operacion.generateAlphabet(cadena);
+        ArrayList<String> alfabetoString = operacion.generateAlphabet(regexpPF);
         operacion.construccionDirecta(string, n, alfabetoString);
         operacion.nombrarNodos(string);
+        operacion.estadoFinal(string);
 
 /* ****************************************Construccion del automata de char************************************/
 /*
@@ -111,7 +117,7 @@ MainLab5{
 
 /* ******************************************RECORRIENDO EL ARCHIVO*****************************************************/
 
-        operacion.Errors(operacion.recorrido(fileContent, ident));
+        operacion.Errors(operacion.recorrido(fileContent, ident, set,string));
         //operacion.Errors(operacion.recorrido(fileContent, ident, number, string, charr));
 
 

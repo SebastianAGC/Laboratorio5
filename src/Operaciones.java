@@ -639,6 +639,11 @@ public class Operaciones {
                 }
             }
         }
+        for (EstadoAFDHoja e: a.getDstates()) {
+            if(e.equals(a.getEstadoFinalHoja())){
+                e.setFinal(true);
+            }
+        }
     }
 
     public void construccionDirecta(AutomataDFA automata,Hoja n, ArrayList<String> alfabeto){
@@ -791,6 +796,7 @@ public class Operaciones {
                 alfabeto.add(caracter);
             }
         }
+
         return alfabeto;
     }
 /* ********************************************METODOS PARA VERIFICACION DE SINTAXIS*****************************************/
@@ -809,19 +815,19 @@ public class Operaciones {
         return text;
     }
 
-    public int recorrido(ArrayList<String> fileContent, AutomataDFA ident){
+    public int recorrido(ArrayList<String> fileContent, AutomataDFA ident, AutomataDFA set, AutomataDFA string){
         String compilerIdent="";
         String endCompilerIdent="";
         int result = 0;
-        int y=8, z=1000000000,a=1000000000,b=1000000000,c=1000000000,d=1000000000,e=1000000000,f=1000000000;
         String com = "";
         String end = "";
-        String cadenaGeneral="";
-        String verificador="";
-        String contCharacters="";
+        String cadena = "";
+        String temp = "";
+        //fileContent.size();
 
-        fileContent.size();
+        //Obteniendo la PRIMERA linea de la estructura de Coco/l
         String start = fileContent.get(0);
+        //Obteniendo la ULTIMA linea de la estructura de Coco/l
         String finale = fileContent.get(fileContent.size()-1);
 
         //Comprobando que tenga el inicio correcto*/
@@ -849,16 +855,16 @@ public class Operaciones {
         //Comprobando que tenga el final correcto
         for (int i = 0;i<finale.length();i++){
             String caracter = String.valueOf(finale.charAt(i));
-            if(i<=4){
+            if(i<=3){
                 end+=caracter;
             }
-            if(i==5){
-                if(end.equals("END ")){
+            if(i==4){
+                if(!end.equals("END ")){
                    result=3;
                    return result;
                 }
             }
-            if(i>=5){
+            if(i>=4){
                 endCompilerIdent+=caracter;
             }
         }
@@ -866,71 +872,116 @@ public class Operaciones {
             result=4;
             return result;
         }
-        /*
-        for(int x = 0 ; x<fileContent.length();x++){
-            String caracter = String.valueOf(fileContent.charAt(x));
-            if(x<y){
-                com+=caracter;
-            }else if(x==y){
-                if(!startsCompiler(com)){
-                    result=1;
+
+        //Comprobando que se encuentre la palabra clave CHARACTERS
+        cadena = fileContent.get(4);
+        for(int i=0; i<cadena.length(); i++){
+            String caracter = String.valueOf(cadena.charAt(i));
+            temp+=caracter;
+        }
+        if(!cadena.equals("CHARACTERS")){
+            result=5;
+            return result;
+        }
+
+        //Obteniendo el contenido del segmento de CHARACTERS.
+        cadena="";
+        temp="";
+        int j=5;
+        int keywInit=0;
+        boolean bandera=false;
+        ArrayList<String> charactersContent = new ArrayList<>();
+
+        while(bandera==false){
+            if(j==fileContent.size()-1){
+                bandera =true; //se alcanzó el final del documento
+            }else{
+                cadena = fileContent.get(j);
+
+                for(int i=0; i<cadena.length(); i++){
+                    String caracter = String.valueOf(cadena.charAt(i));
+                    temp+=caracter;
+                }
+                if(cadena.equals("KEYWORDS")){
+                    keywInit=j;
+                    bandera=true;
+                }else{
+                    cadena=cadena.replace(" ", "");
+                    charactersContent.add(cadena);
+                }
+                j++;
+            }
+        }
+        System.out.println(keywInit);
+
+        //Verificando el contenido de characters
+        cadena="";
+        temp="";
+        for (String s: charactersContent) {
+            if(!s.contains("=")){
+                result = 7;
+                return result;
+            }else if(!(String.valueOf(s.charAt(s.length()-1))).equals(".")){
+                result = 8;
+                return result;
+            }else{
+                String[] parts = s.split("=");
+                if(!simulacionAFDdirecto(ident, parts[0])){
+                    result = 6;
+                    return result;
+                }
+                /*
+                parts[1]=parts[1].replace(".", "")
+                if(!simulacionAFDdirecto(set, parts[1])){
+                    result = 9;
+                    return result;
+                }*/
+            }
+        }
+
+        //Verificando la parte de KEYWORDS
+        ArrayList<String> keywordsContent = new ArrayList<>();
+        if(!fileContent.get(keywInit).equals("KEYWORDS")){
+            result = 10;
+            return 10;
+        }else{
+            for (int i=0; i<fileContent.size();i++) {
+                if(i>keywInit && i<fileContent.size()-1){
+                    keywordsContent.add(fileContent.get(i));
+                }
+            }
+
+            for (String s: keywordsContent) {
+                if(!s.contains("=")){
+                    result = 11;
+                    return result;
+                }else if(!(String.valueOf(s.charAt(s.length()-1))).equals(".")){
+                    result = 12;
                     return result;
                 }else{
-                    y=y+1;
-                    cadenaGeneral="";
-                }
-            }else if(x>=y){
-                if(x<z){
-                    if(!caracter.equals("(")){
-                        cadenaGeneral+=caracter;
-                    }else{
-                        z=x;
-                        if(!simulacionAFDdirecto(ident, cadenaGeneral)){
-                            result=2;
-                            return result;
-                        }else{
-                            compilerIdent=cadenaGeneral;
-                            cadenaGeneral="";
-                        }
+                    String[] parts = s.split("=");
+                    if(!simulacionAFDdirecto(ident, parts[0])){
+                        result = 13;
+                        return result;
                     }
-                }
-            }else if(x>=z){
-                if(!caracter.equals(")")){
-                    cadenaGeneral+=caracter;
-                }else{
-                    a=x;
-                    cadenaGeneral="";
-                }
-            }else if(x>a){
-                if(x<b){
-                    if(!caracter.equals("S")){
-                        cadenaGeneral+=caracter;
-                    }else{
-                        cadenaGeneral+=caracter;
-                        if(!cadenaGeneral.equals("CHARACTERS")){
-                            result=3;
-                            return result;
-                        }else{
-                            b=x;
-                            cadenaGeneral="";
-                        }
-                    }
-                }else if(x>b){
-                    cadenaGeneral+=caracter;
-                    if(cadenaGeneral.length()>8){
-                        int n=cadenaGeneral.length()-8;
-                        for(int i = n;i<n+8;i++){
-                            verificador+=String.valueOf(cadenaGeneral.charAt(i));
-                        }
-                        if(verificador.equals("KEYWORDS")){
-                            for(int contador=0;contador<n;contador++){
-                                contCharacters+=String.valueOf(cadenaGeneral.charAt(contador));
-                            }
-                        }
+                    parts[1]=parts[1].replace(".", "");
+                    if(!simulacionAFDdirecto(string, parts[1])){
+                        result = 14;
+                        return result;
                     }
                 }
             }
-        }*/
+
+        }
+
+
+
+
+
+
+
+
+
         return result;
     }
 
@@ -947,6 +998,36 @@ public class Operaciones {
                 break;
             case 4:
                 System.err.println("Error de Sintaxis #4: No se encuentra el identificar final");
+                break;
+            case 5:
+                System.err.println("Error de Sintaxis #5: No se encuentra la palabra de inicio del segmento CHARACTERS.");
+                break;
+            case 6:
+                System.err.println("Error de Sintaxis #6: Identificador incorrecto dentro segmento CHARACTERS.");
+                break;
+            case 7:
+                System.err.println("Error de Sintaxis #7: No se encuentra el simbolo \"=\" en alguna definicion de CHARACTERS.");
+                break;
+            case 8:
+                System.err.println("Error de Sintaxis #8: No se encuentra el simbolo \".\" en alguna definicion de CHARACTERS.");
+                break;
+            case 9:
+                System.err.println("Error de Sintaxis #9: Set mal declarado en alguna definicion de CHARACTERS.");
+                break;
+            case 10:
+                System.err.println("Error de Sintaxis #10: No se encuentra la palabra de inicio del segmento KEYWORDS.");
+                break;
+            case 11:
+                System.err.println("Error de Sintaxis #11: No se encuentra el simbolo \"=\" en alguna definicion de KEYWORDS.");
+                break;
+            case 12:
+                System.err.println("Error de Sintaxis #12: No se encuentra el simbolo \".\" en alguna definicion de KEYWORDS.");
+                break;
+            case 13:
+                System.err.println("Error de Sintaxis #13: Identificador incorrecto dentro de KEYWORDS.");
+                break;
+            case 14:
+                System.err.println("Error de Sintaxis #14: String mal declarado en alguna definicion de KEYWORDS.");
                 break;
             default:
                 System.out.println("No se encontraron errores. CORRECTO");

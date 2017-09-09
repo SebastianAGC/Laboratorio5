@@ -4,8 +4,15 @@ public class CocolStructure {
     private String digit="0|1|2|3|4|5|6|7|8|9";
     private String symbols = "°|!|#|\"|\\|%|'|/|@|&|=|¿|?|¡|[|]|-|+|_|<|>|:|;|~|{|}| ";
     private String any = symbols + "|" + letter + "|" + digit;
-    private String anyButQuote;
-    private String anyButApostrophe;
+    private String anyButQuote = any.replace("|\"", "");
+    private String anyButApostrophe = any.replace("|'", "");
+    private String ident = "("+letter+")("+letter+"|"+digit+")*" ;
+    private String number = "("+digit+")("+digit+")*";
+    private String string = "\"(("+anyButQuote+")("+anyButQuote+")*)\"";
+    private  String charr = "'("+anyButApostrophe+")'";
+    private String Char = "("+charr+")"+"|(CHR("+number+")";
+    private String basicSet = "("+string+")|("+ident+")";
+    private String set="("+basicSet+")((+|-)("+basicSet+"))*";
 
     public CocolStructure() {
     }
@@ -27,12 +34,38 @@ public class CocolStructure {
     }
 
     public String getAnyButQuote() {
-        anyButQuote=any.replace("|\"", "");
         return anyButQuote;
     }
 
     public String getAnyButApostrophe() {
-        anyButApostrophe=any.replace("|'", "");
         return anyButApostrophe;
+    }
+
+    public String getIdent() {
+        return ident;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public String getString() {
+        return string;
+    }
+
+    public String getCharr() {
+        return charr;
+    }
+
+    public String getChar() {
+        return Char;
+    }
+
+    public String getBasicSet() {
+        return basicSet;
+    }
+
+    public String getSet() {
+        return set;
     }
 }
